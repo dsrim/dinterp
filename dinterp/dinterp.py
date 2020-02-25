@@ -7,10 +7,6 @@ see LICENSE
 
 import numpy as np
 import matplotlib.pyplot as plt
-import _dinterp
-#from scipy.interpolate import interp1d, splev, splrep
-#from scipy.integrate import quad
- 
  
  
 def computeCDF(x,f,g,tol=0.):
@@ -36,7 +32,7 @@ def cumsum1(f):
 
 def merge_monotone(x,F,G,tol=0.):
     
-    xF,xG,Fv,mt = _dinterp.dinterp.merge_monotone(x,x,F,G,tol)
+    xF,xG,Fv,mt = _dinterpc.merge_monotone(x,x,F,G,tol)
 
     xF = xF[:mt]
     xG = xG[:mt]
@@ -46,7 +42,7 @@ def merge_monotone(x,F,G,tol=0.):
 
 def merge_monotone2(xf,xg,F,G,tol=0.):
     
-    xF,xG,Fv,mt = _dinterp.dinterp.merge_monotone(xf,xg,F,G,tol)
+    xF,xG,Fv,mt = _dinterpc.merge_monotone(xf,xg,F,G,tol)
 
     xF = xF[:mt]
     xG = xG[:mt]
@@ -80,26 +76,10 @@ def merge_monotone_list(x_list,F_list,tol=0.):
 def dinterp(x,xF,xG,Fv,alpha):
     
 
-    #if xF.shape[0] != xG.shape[0]:
-    #    n0 = np.abs(xF.shape[0] - xG.shape[0])
-    #    ones = np.ones(n0)
-    #    if xF.shape[0] > xG.shape[0]:
-    #        xG = np.concatenate((xG,ones*xG[-1]),axis=0)   
-    #        Gv = np.concatenate((Gv,ones),axis=0)   
-
-    #    elif xG.shape[0] > xF.shape[0]:
-    #        xF = np.concatenate((xF,ones*xF[-1]),axis=0)   
-    #        Fv = np.concatenate((Fv,ones),axis=0)   
-
     xH = (1.-alpha)*xF + alpha*xG
     xp = np.concatenate((x[:-1],[x[-1]-1e-4,x[-1]]),axis=0)
-    #xp = np.concatenate((x,[x[-1] + (x[-1] - x[-2])]),axis=0)
-    #xp = np.linspace(x[0],x[-1],x.shape[0]+1)
-    
-    #Hv1 = np.interp(xp,x3,Fv1,right=Fv1[-1] + (Fv1[-1] - Fv1[-2]))
     Hv = np.interp(xp,xH,Fv)
     h = np.diff(Hv)/np.diff(xp)
-    #h = np.diff(Hv)
 
     return x,h
 
@@ -181,54 +161,6 @@ def drt_computeFz(da0,da1):
 
 
 
-def drt_dinterp(cdfs,a):
-
-    x = cdfs[0]
-    s0 = cdfs[1]
-    s1 = cdfs[2]
-    
-    x0 = cdfs[3]
-    x1 = cdfs[4]
-    
-    F0 = cdfs[5]
-    F1 = cdfs[6]
-
-
-    # scaling
-    sa0_list, sb0_list, sc0_list, sd0_list = s0
-    sa1_list, sb1_list, sc1_list, sd1_list = s1  
-
-    # x-coordinates (CDFs)
-    xa0_list, xb0_list, xc0_list, xd0_list = x0 
-    xa1_list, xb1_list, xc1_list, xd1_list = x1
-
-    # F-coordinates (CDFs)
-    Fa0_list, Fb0_list, Fc0_list, Fd0_list = F0
-    Fa1_list, Fb1_list, Fc1_list, Fd1_list = F1
-    
-    N = x.shape[0] 
-    M = len(sa0_list)
-
-    daad = np.zeros((N,M))
-    dabd = np.zeros((N,M))
-    dacd = np.zeros((N,M))
-    dadd = np.zeros((N,M))
-
-    for k in range(M):
-    
-        xxa,ga = dinterp(x,xa0_list[k],xa1_list[k],Fa0_list[k],Fa1_list[k],a);
-        xxb,gb = dinterp(x,xb0_list[k],xb1_list[k],Fb0_list[k],Fb1_list[k],a);
-        xxc,gc = dinterp(x,xc0_list[k],xc1_list[k],Fc0_list[k],Fc1_list[k],a);
-        xxd,gd = dinterp(x,xd0_list[k],xd1_list[k],Fd0_list[k],Fd1_list[k],a);
-     
-        daad[:,k] = ga*((1.-a)*sa0_list[k] + a*sa1_list[k])
-        dabd[:,k] = gb*((1.-a)*sb0_list[k] + a*sb1_list[k])
-        dacd[:,k] = gc*((1.-a)*sc0_list[k] + a*sc1_list[k])
-        dadd[:,k] = gd*((1.-a)*sd0_list[k] + a*sd1_list[k])
-    
-    return daad,dabd,dacd,dadd
-
-
 def diffp(a,p=1):
     r"""
         differentiate with padding: (output vector length unchanged)
@@ -301,89 +233,3 @@ def del_gc(v,n=(2,2)):
         return v[n[0]:]
 
 
-
-
-
-
-#
-#def drt_diff(da):
-#
-#    daa = da[0]
-#    dab = da[1]
-#    dac = da[2]
-#    dad = da[3]
-#
-#    
-#    ddaa = np.diff(\
-#           np.concatenate((np.zeros((1,daa.shape[1])),daa),axis=0),\
-#                   axis=0)
-#
-#    ddab = np.diff(\
-#           np.concatenate((np.zeros((1,dab.shape[1])),dab),axis=0),\
-#                   axis=0)
-#
-#    ddac = np.diff(\
-#           np.concatenate((np.zeros((1,dac.shape[1])),dac),axis=0),\
-#                   axis=0)
-#
-#    ddad = np.diff(\
-#           np.concatenate((np.zeros((1,dad.shape[1])),dad),axis=0),\
-#                   axis=0)
-#
-#    return (ddaa,ddab,ddac,ddad)
-#
-#
-#def drt_parts(da):
-#
-#    daa = da[0]
-#    dab = da[1]
-#    dac = da[2]
-#    dad = da[3]
-#
-#    dims = daa.shape
-#
-#    pdaa = np.zeros(dims)
-#    pdab = np.zeros(dims)
-#    pdac = np.zeros(dims)
-#    pdad = np.zeros(dims)
-#    
-#    mdaa = np.zeros(dims)
-#    mdab = np.zeros(dims)
-#    mdac = np.zeros(dims)
-#    mdad = np.zeros(dims)
-#
-#    pdaa = daa*(daa >= 0.)
-#    pdab = dab*(dab >= 0.)
-#    pdac = dac*(dac >= 0.)
-#    pdad = dad*(dad >= 0.)
-#
-#    mdaa = -daa*(daa < 0.)
-#    mdab = -dab*(dab < 0.)
-#    mdac = -dac*(dac < 0.)
-#    mdad = -dad*(dad < 0.)
-#    
-#    return (pdaa,pdab,pdac,pdad), (mdaa,mdab,mdac,mdad)
-#
-#def drt_integrate(da):
-#
-#    daa = da[0]
-#    dab = da[1]
-#    dac = da[2]
-#    dad = da[3]
-#
-#    dims = daa.shape
-#
-#    sdaa = np.cumsum(daa,axis=0)
-#    sdab = np.cumsum(dab,axis=0)
-#    sdac = np.cumsum(dac,axis=0)
-#    sdad = np.cumsum(dad,axis=0)
-#    
-#    return (sdaa,sdab,sdac,sdad)
-#
-#def drt_add(da0,da1):
-#
-#    return (da0[0]+da1[0], da0[1]+da1[1], da0[2]+da1[2], da0[3]+da1[3])
-#
-#def drt_minus(da0,da1):
-#
-#    return (da0[0]-da1[0], da0[1]-da1[1], da0[2]-da1[2], da0[3]-da1[3])
