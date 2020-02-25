@@ -5,4 +5,4 @@ Tools for displacement interpolation
 
 ### Build
 
-```cd dinterp; make .so```
+```python setup.py build```
