@@ -420,8 +420,7 @@ static PyObject *
     }
 
 static PyMethodDef DinterpModuleMethods[] = {
-   {"merge_monotone", merge_monotone, METH_VARARGS, 
-                                "merge two numpy arrays which are CDFs"},
+   {"merge_monotone", merge_monotone, METH_VARARGS, "merge two numpy arrays"},
    {"compute_pc4pt", compute_pc4pt, METH_VARARGS,"find piece for given pt"},
    {"compute_transport_pt", compute_transport_pt, METH_VARARGS,
     "compute transported pt under low-rank transport map"},
@@ -431,7 +430,7 @@ static PyMethodDef DinterpModuleMethods[] = {
 static struct PyModuleDef DinterpModule = {
         PyModuleDef_HEAD_INIT,
         "dinterpc",
-        "Dinterp C extension",
+        "Dinterp in C",
         -1,
         DinterpModuleMethods
     };
